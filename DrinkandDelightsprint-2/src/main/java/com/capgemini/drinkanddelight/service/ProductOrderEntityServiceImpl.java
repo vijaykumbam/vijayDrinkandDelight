@@ -8,7 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.capgemini.drinkanddelight.dao.ProductOrderDaoI;
-import com.capgemini.drinkanddelight.entity.ProductOrderEntity;
+import com.capgemini.drinkanddelight.entity.Distributor;
+import com.capgemini.drinkanddelight.entity.ProductOrder;
 
 @Service
 @Transactional
@@ -27,7 +28,7 @@ public class ProductOrderEntityServiceImpl implements ProductOrderEntityServiceI
 	 * Date 	 : 20/04/2020
 	 */
 	@Override
-	public ProductOrderEntity addProductOrderEntity(ProductOrderEntity productorderentity) {
+	public ProductOrder addProductOrderEntity(ProductOrder productorderentity) {
 		productorderdaoi.addProductOrderEntity(productorderentity);
 		return productorderentity;
 		
@@ -42,7 +43,7 @@ public class ProductOrderEntityServiceImpl implements ProductOrderEntityServiceI
 	 * Date 	 : 20/04/2020
 	 */
 	@Override
-	public List<ProductOrderEntity> getListOfProductOrderEntity() {
+	public List<ProductOrder> getListOfProductOrderEntity() {
 		System.out.println("qwertyu");
 		return productorderdaoi.getListOfProductOrderEntity();
 	}
@@ -56,7 +57,7 @@ public class ProductOrderEntityServiceImpl implements ProductOrderEntityServiceI
 	 * Date 	 : 20/04/2020
 	 */
 	@Override
-	public ProductOrderEntity findByOrderId(String orderId) {
+	public ProductOrder findByOrderId(String orderId) {
 		return productorderdaoi.findByOrderId(orderId);
 	}
 
@@ -83,7 +84,7 @@ public class ProductOrderEntityServiceImpl implements ProductOrderEntityServiceI
 	 * Date 	 : 20/04/2020
 	 */
 	@Override
-	public List<ProductOrderEntity> displayProductOrder (String distibutorId)
+	public List<ProductOrder> displayProductOrder (String distibutorId)
 	{
 		return productorderdaoi.displayProductOrder(distibutorId);
 	}
@@ -110,11 +111,37 @@ public class ProductOrderEntityServiceImpl implements ProductOrderEntityServiceI
 	 * Date 	 : 21/04/2020
 	 */
 	@Override
-	public List<ProductOrderEntity> displayOrder1(String id) {
+	public List<ProductOrder> displayOrder1(String id) {
+		
 		return productorderdaoi.displayOrder1(id);
 	}
 	
+
+	/* Json Format
+	 * This method is used to give the list of Product orders by using the distributorId and Status
+	 * Method 	 : displayIdwithStatus
+	 * Type 	 : List<ProductOrderEntity>
+	 * parameters: distribuotrId,status 
+	 * Author 	 : VijayKumbam
+	 * Date 	 : 23/04/2020
+	 */
+	@Override
+	public List<ProductOrder> displayIdwithStatus(String distribuotrId, String status) {
+		return productorderdaoi.displayIdwithStatus(distribuotrId, status);
+	}
 	
 	
+	/* Json Format
+	 * This method is used to give the distributor details by using the distributorId.
+	 * Method 	 : getDistributorDetails
+	 * Type 	 : Distributor
+	 * parameters: distribuotrId
+	 * Author 	 : VijayKumbam
+	 * Date 	 : 23/04/2020
+	 */
+	@Override
+	public Distributor getDistributorDetails(String distributorId) {
+		return productorderdaoi.getDistributorDetails(distributorId);
+	}
 	
 }

@@ -2,16 +2,17 @@ package com.capgemini.drinkanddelight.dao;
 
 import java.util.List;
 
-import com.capgemini.drinkanddelight.entity.ProductOrderEntity;
+import com.capgemini.drinkanddelight.entity.Distributor;
+import com.capgemini.drinkanddelight.entity.ProductOrder;
 
 public interface ProductOrderDaoI{
 
-	public void addProductOrderEntity(ProductOrderEntity productorderentity);
-	public List<ProductOrderEntity> getListOfProductOrderEntity();
-	public ProductOrderEntity findByOrderId(String orderId);
+	public void addProductOrderEntity(ProductOrder productorderentity);
+	public List<ProductOrder> getListOfProductOrderEntity();
+	public ProductOrder findByOrderId(String orderId);
 	public Boolean deleteProductOrderEntity(String orderId);
 	
-	public List<ProductOrderEntity> displayProductOrder(String distibutorId);
+	public List<ProductOrder> displayProductOrder(String distibutorId);
 	
 	
 	/*
@@ -22,5 +23,14 @@ public interface ProductOrderDaoI{
 	/*
 	 * Json Format 
 	 */
-	public List<ProductOrderEntity> displayOrder1(String id);
+	public List<ProductOrder> displayOrder1(String id);
+	
+
+	/*
+	 * distributor Id and the deliveryStatus 
+	 */
+	public List<ProductOrder>  displayIdwithStatus(String id,String status);
+	
+	
+	public Distributor getDistributorDetails(String distributorId);
 }

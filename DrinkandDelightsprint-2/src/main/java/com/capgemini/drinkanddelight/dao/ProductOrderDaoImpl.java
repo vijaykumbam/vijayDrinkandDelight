@@ -11,7 +11,8 @@ import javax.transaction.Transactional;
 
 import org.springframework.stereotype.Repository;
 
-import com.capgemini.drinkanddelight.entity.ProductOrderEntity;
+import com.capgemini.drinkanddelight.entity.Distributor;
+import com.capgemini.drinkanddelight.entity.ProductOrder;
 
 
 @Repository
@@ -30,7 +31,7 @@ public class ProductOrderDaoImpl implements ProductOrderDaoI{
 	 * Date 	 : 20/04/2020
 	 */
 	@Override
-	public void addProductOrderEntity(ProductOrderEntity productorderentity) {
+	public void addProductOrderEntity(ProductOrder productorderentity) {
 		entityManager.persist(productorderentity);
 	}
 	
@@ -42,9 +43,9 @@ public class ProductOrderDaoImpl implements ProductOrderDaoI{
 	 * Author 	 : VijayKumbam
 	 * Date 	 : 20/04/2020
 	 */
-	public List<ProductOrderEntity> getListOfProductOrderEntity(){
-		String Qstr="SELECT productorderentity from ProductOrderEntity productorderentity";
-		TypedQuery<ProductOrderEntity> query=entityManager.createQuery(Qstr,ProductOrderEntity.class);
+	public List<ProductOrder> getListOfProductOrderEntity(){
+		String Qstr="SELECT productorderentity from ProductOrder productorderentity";
+		TypedQuery<ProductOrder> query=entityManager.createQuery(Qstr,ProductOrder.class);
 		return query.getResultList();
 	}
 
@@ -58,8 +59,8 @@ public class ProductOrderDaoImpl implements ProductOrderDaoI{
 	 */
 	
 	@Override
-	public ProductOrderEntity findByOrderId(String orderId) {		
-		return entityManager.find(ProductOrderEntity.class, orderId);
+	public ProductOrder findByOrderId(String orderId) {		
+		return entityManager.find(ProductOrder.class, orderId);
 	}
 
 	/*
@@ -73,7 +74,7 @@ public class ProductOrderDaoImpl implements ProductOrderDaoI{
 	@Override
 	public Boolean deleteProductOrderEntity(String orderId) {
 		
-		ProductOrderEntity obj =entityManager.find(ProductOrderEntity.class, orderId);
+		ProductOrder obj =entityManager.find(ProductOrder.class, orderId);
 		if(obj !=null)
 		{
 			entityManager.remove(obj);
@@ -92,9 +93,9 @@ public class ProductOrderDaoImpl implements ProductOrderDaoI{
 	 * Date 	 : 20/04/2020
 	 */
 	
-	public List<ProductOrderEntity> displayProductOrder(String distibutorId)
+	public List<ProductOrder> displayProductOrder(String distibutorId)
 	{
-		TypedQuery<ProductOrderEntity> query = entityManager.createQuery( "SELECT p.deliveryStatus FROM ProductOrderEntity p WHERE p.distributorId =?1", ProductOrderEntity.class);
+		TypedQuery<ProductOrder> query = entityManager.createQuery( "SELECT p.deliveryStatus FROM ProductOrderEntity p WHERE p.distributorId =?1", ProductOrder.class);
 		System.out.println("qwertyu");
 		//query.setParameter("distributorId",distibutorId).getResultList();
 		return query.setParameter(1, distibutorId).getResultList();
@@ -110,17 +111,17 @@ public class ProductOrderDaoImpl implements ProductOrderDaoI{
 	 */
 	public List<String> displayOrder(String id)
 	{
-		String Qstr="SELECT productorderentity from ProductOrderEntity productorderentity";
-		TypedQuery<ProductOrderEntity> query=entityManager.createQuery(Qstr,ProductOrderEntity.class);
-		List<ProductOrderEntity>result = query.getResultList();
+		String Qstr="SELECT productorderentity from ProductOrder productorderentity";
+		TypedQuery<ProductOrder> query=entityManager.createQuery(Qstr,ProductOrder.class);
+		List<ProductOrder>result = query.getResultList();
 		
 		List<String> res = new ArrayList<String>();
 		
 		
-		Iterator<ProductOrderEntity> itr =result.iterator();
+		Iterator<ProductOrder> itr =result.iterator();
 		 while(itr.hasNext()) 
 		 {
-	         ProductOrderEntity element = itr.next();
+	         ProductOrder element = itr.next();
 	         if(element.getDistributorId().contentEquals(id))
 	         {
 	        	System.out.println("DistributorId ="+id+" " +"deliveryStatus="+element.getDeliveryStatus());
@@ -139,27 +140,87 @@ public class ProductOrderDaoImpl implements ProductOrderDaoI{
 	 * Author 	 : VijayKumbam
 	 * Date 	 : 21/04/2020
 	 */
-	public List<ProductOrderEntity> displayOrder1(String id)
+	public List<ProductOrder> displayOrder1(String id)
 	{
-		String Qstr="SELECT productorderentity from ProductOrderEntity productorderentity";
-		TypedQuery<ProductOrderEntity> query=entityManager.createQuery(Qstr,ProductOrderEntity.class);
-		List<ProductOrderEntity>result = query.getResultList();
+		String Qstr="SELECT productorderentity from ProductOrder productorderentity";
+		TypedQuery<ProductOrder> query=entityManager.createQuery(Qstr,ProductOrder.class);
+		List<ProductOrder>result = query.getResultList();
+
+		List<ProductOrder> res = new ArrayList<ProductOrder>();
 		
-		List<ProductOrderEntity> res = new ArrayList<ProductOrderEntity>();
-		
-		
-		Iterator<ProductOrderEntity> itr =result.iterator();
-		 while(itr.hasNext()) 
-		 {
-	         ProductOrderEntity element = itr.next();
-	         if(element.getDistributorId().contentEquals(id))
-	         {
-	        	System.out.println("DistributorId ="+id+" " +"deliveryStatus="+element.getDeliveryStatus());
-	        	res.add(element);
-	        	//return element.getDeliveryStatus();
-	         }
-	      } 
+		Distributor de =  entityManager.find(Distributor.class, id);
+		if(de != null) 
+		{
+			Iterator<ProductOrder> itr =result.iterator();
+			while(itr.hasNext()) 
+				{
+				ProductOrder element = itr.next();
+				if(element.getDistributorId().contentEquals(id))
+					{
+						//System.out.println("DistributorId ="+id+" " +"deliveryStatus="+element.getDeliveryStatus());
+						res.add(element);
+						//return element.getDeliveryStatus();
+					}
+				}
+		}
+		else
+		{
+			return null;
+		}
 		return res;	
 	}
 	
+	
+	
+	/* Json Format
+	 * This method is used to give the list of Product orders by using the distributorId and Status
+	 * Method 	 : displayIdwithStatus
+	 * Type 	 : List<ProductOrderEntity>
+	 * parameters: distribuotrId,status 
+	 * Author 	 : VijayKumbam
+	 * Date 	 : 23/04/2020
+	 */
+	@Override
+	public List<ProductOrder>  displayIdwithStatus(String distributorId, String status) {
+		
+		String delivStatus = status.toUpperCase();
+		String Qstr="SELECT productorderentity from ProductOrder productorderentity";
+		TypedQuery<ProductOrder> query=entityManager.createQuery(Qstr,ProductOrder.class);
+		List<ProductOrder>result = query.getResultList();
+
+		List<ProductOrder> res = new ArrayList<ProductOrder>();
+		
+		Distributor de =  entityManager.find(Distributor.class, distributorId);
+		
+			Iterator<ProductOrder> itr =result.iterator();
+			
+				while(itr.hasNext()) 
+					{
+						ProductOrder element = itr.next();
+						if(de!=null && element.getDeliveryStatus().contentEquals(delivStatus)) 
+						{
+							res.add(element);
+							return res;
+						}
+				}	
+		return null;	
+	}
+	
+	/*
+	 * This method is used to find the Distributor by the DistributorId from the orderManagement Table.
+	 * Method 	 : getDistributorDetails
+	 * Type 	 : Distributor
+	 * parameters: distributorId
+	 * Author 	 : VijayKumbam
+	 * Date 	 : 20/04/2020
+	 */
+	
+	@Override
+	public Distributor getDistributorDetails(String distributorId) {
+		Distributor distributor= entityManager.find(Distributor.class, distributorId);
+		if(distributor != null)
+			return distributor;
+		else
+			return null;
+	}
 }

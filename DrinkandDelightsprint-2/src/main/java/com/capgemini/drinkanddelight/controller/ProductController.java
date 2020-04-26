@@ -2,11 +2,12 @@ package com.capgemini.drinkanddelight.controller;
 
 import java.util.List;
 
+import javax.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -14,9 +15,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.capgemini.drinkanddelight.entity.DistributorEntity;
-import com.capgemini.drinkanddelight.entity.ProductOrderEntity;
-import com.capgemini.drinkanddelight.exception.ProductOrderEntityException;
+import com.capgemini.drinkanddelight.entity.Distributor;
+import com.capgemini.drinkanddelight.entity.ProductOrder;
+import com.capgemini.drinkanddelight.exception.DistributorNotFoundException;
+import com.capgemini.drinkanddelight.exception.ProductOrderEntityNotFoundException;
 import com.capgemini.drinkanddelight.service.ProductOrderEntityServiceInterface;
 
 @CrossOrigin(origins = "http://localhost:4200")
@@ -36,7 +38,7 @@ public class ProductController {
 	 * Date 	 : 20/04/2020
 	 */
 	@PostMapping("/addProductOrderEntity")
-	public ResponseEntity<String> addProductOrderEntity(@RequestBody ProductOrderEntity productorderentity)
+	public ResponseEntity<String> addProductOrderEntity(@Valid @RequestBody ProductOrder productorderentity)
 	{
 		productorderentityserviceinterface.addProductOrderEntity(productorderentity);
 		return new ResponseEntity<String>("productorderentity Added",HttpStatus.OK);
@@ -51,10 +53,12 @@ public class ProductController {
 	 * Date 	 : 20/04/2020
 	 */
 	@GetMapping("/getListOfProductOrderEntity")
-    public ResponseEntity<List<ProductOrderEntity>> getListOfProductOrderEntity()
+    public ResponseEntity<List<ProductOrder>> getListOfProductOrderEntity() throws ProductOrderEntityNotFoundException
 	{
-			List<ProductOrderEntity> list = productorderentityserviceinterface.getListOfProductOrderEntity();
-			return new ResponseEntity<List<ProductOrderEntity>>(list,HttpStatus.OK);
+			List<ProductOrder> list = productorderentityserviceinterface.getListOfProductOrderEntity();
+			if(list == null)
+				throw new ProductOrderEntityNotFoundException("Sry we not found any data in database");
+			return new ResponseEntity<List<ProductOrder>>(list,HttpStatus.OK);
 	}
 	
 	
@@ -66,12 +70,17 @@ public class ProductController {
 	 * Author 	 : VijayKumbam
 	 * Date 	 : 20/04/2020
 	 */
-	@DeleteMapping("/deleteProductOrderEntity/{orderId}")
-	public ResponseEntity<Boolean> deleteProductOrderEntity(@PathVariable("orderId") String orderId) 
+	@GetMapping("/deleteProductOrderEntity/{orderId}")
+	public ResponseEntity<String> deleteProductOrderEntity(  @PathVariable("orderId") String orderId)  
 	{
-		Boolean status =  productorderentityserviceinterface.deleteProductOrderEntity(orderId);
-		if(!status) throw new ProductOrderEntityException("Entity Not found ");
-		return new ResponseEntity<Boolean>(status,HttpStatus.OK);
+		String result=null;
+		Boolean status = productorderentityserviceinterface.deleteProductOrderEntity(orderId);
+		if(status== true)
+			 result = "Order deleted Successfully";
+		else
+			result = "Unsuccess";
+		
+		return new ResponseEntity<String>(result,HttpStatus.OK);
 	}
 	
 	/*
@@ -83,10 +92,12 @@ public class ProductController {
 	 * Date 	 : 20/04/2020
 	 */	
 	@GetMapping("/getProductbyId/{orderId}")
-	public ResponseEntity<ProductOrderEntity> getProductbyId(@PathVariable String orderId) 
+	public ResponseEntity<ProductOrder> getProductbyId( @PathVariable String orderId) throws ProductOrderEntityNotFoundException 
 	{
-		ProductOrderEntity list = productorderentityserviceinterface.findByOrderId(orderId);
-		return new ResponseEntity<ProductOrderEntity>(list,HttpStatus.OK);
+		ProductOrder list = productorderentityserviceinterface.findByOrderId(orderId);
+		if(list == null)
+			throw new ProductOrderEntityNotFoundException(orderId+""+"Not Found in database");
+		return new ResponseEntity<ProductOrder>(list,HttpStatus.OK);
 	}
 	
 	/* Hard-Code
@@ -97,8 +108,8 @@ public class ProductController {
 	 * Author 	 : VijayKumbam
 	 * Date 	 : 21/04/2020
 	 */	
-	@GetMapping("/display/{id}")
-	 public ResponseEntity<List<String>> display(@PathVariable String id)
+	@GetMapping("/display/{distributorId}")
+	 public ResponseEntity<List<String>> display( @PathVariable String id)
 	{
 		List<String> list = productorderentityserviceinterface.displayOrder(id);
 		return new ResponseEntity<List<String>>(list,HttpStatus.OK);
@@ -113,11 +124,49 @@ public class ProductController {
 	 * Date 	 : 21/04/2020
 	 */
 	
-	@GetMapping("/display1/{orderId}")
-	public ResponseEntity<List<ProductOrderEntity>> display1(@PathVariable String orderId) 
+	@GetMapping("/displayDistributor/{distributorId}")
+	public ResponseEntity<List<ProductOrder>> displayDistributor( @PathVariable String distributorId) throws DistributorNotFoundException 
 	{
-		List<ProductOrderEntity> list = productorderentityserviceinterface.displayOrder1(orderId);
-		return new ResponseEntity<List<ProductOrderEntity>>(list,HttpStatus.OK);
+		List<ProductOrder> list = productorderentityserviceinterface.displayOrder1(distributorId);
+		if(list == null)
+			throw new DistributorNotFoundException(distributorId+" "+"distributorId Not Found In distributor Table");
+		return new ResponseEntity<List<ProductOrder>>(list,HttpStatus.OK);
 	}
 	
+	/* Json Format
+	 * This is a GetMethod(Http) by using "distributorId" AND "deliveryStatus" it is used to fetch the product Entity.
+	 * Method 	 : displayIdwithStatus
+	 * Type 	 : ResponseEntity<List<ProductOrderEntity>>
+	 * parameters: distribuotrId,status 
+	 * Author 	 : VijayKumbam
+	 * Date 	 : 23/04/2020
+	 */
+	
+	@GetMapping("/displayDistributor/{distributorId}/{status}")
+	public ResponseEntity<List<ProductOrder>> displayIdwithStatus( @PathVariable String distributorId , @PathVariable String status) throws DistributorNotFoundException 
+	{
+		List<ProductOrder> list = productorderentityserviceinterface.displayIdwithStatus(distributorId, status);
+		if(list==null)
+			throw new DistributorNotFoundException(distributorId+" with "+status+" Details Not Found in Database ");
+		return new ResponseEntity<List<ProductOrder>>(list,HttpStatus.OK);
+	}
+	
+	/* Json Format
+	 * This is a GetMethod(Http) by using "distributorId" it is used to fetch the details of the particular DistributorId.
+	 * Method 	 : displayIdwithStatus
+	 * Type 	 : ResponseEntity<Distributor>
+	 * parameters: distribuotrId
+	 * Author 	 : VijayKumbam
+	 * Date 	 : 24/04/2020
+	 */
+	
+	@GetMapping("/getDistributorDetails/{distributorId}")
+	public ResponseEntity<Distributor> getDistributorDetails( @PathVariable String distributorId) throws DistributorNotFoundException
+	{
+	Distributor list = productorderentityserviceinterface.getDistributorDetails(distributorId);
+		if(list==null)
+			throw new DistributorNotFoundException(" Details Not Found in Database ");
+		return new ResponseEntity<Distributor>(list,HttpStatus.OK);
+	}
 }
+
